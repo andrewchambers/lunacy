@@ -8,6 +8,7 @@ description = "A no_std + alloc Rust wrapper around system libc."
 cc = "1"
 
 [features]
+curl = []
 default = []
 no-std-examples = []
 pthread = []
@@ -21,6 +22,11 @@ required-features = ["no-std-examples"]
 name = "threading"
 test = false
 required-features = ["no-std-examples", "pthread"]
+
+[[example]]
+name = "curl"
+test = false
+required-features = ["no-std-examples", "curl"]
 
 [profile.dev]
 panic = "abort"

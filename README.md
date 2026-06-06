@@ -6,6 +6,7 @@ being usable with `alloc`.
 The initial API is intentionally small:
 
 - `lunacy::ffi` exposes the raw C ABI surface used by this crate.
+- With the `curl` feature, `lunacy::curl` provides thin libcurl easy wrappers.
 - `Errno` and `Result<T>` avoid `std::io::Error`.
 - Errno values used by wrappers are read through C helpers, not Rust constants.
 - `ErrnoName` provides symbolic names such as `EINTR` and `ENOENT`, with
@@ -24,6 +25,8 @@ The initial API is intentionally small:
   and IPv4/IPv6 address conversion.
 - Unix time helpers wrap `time`, `clock_gettime`, `gettimeofday`, and
   `nanosleep`, including a retrying `sleep`.
+- Unix terminal helpers wrap `isatty`, raw mode setup/restore, and terminal
+  window-size queries.
 - `LibcAllocator` can be used as a no_std global allocator backed by libc.
 - With the `pthread` feature, `lunacy::pthread` provides heap-backed opaque
   pthread handles for `Thread` and `Mutex<T>`.
@@ -44,3 +47,5 @@ targets that lack libc.
 
 `lunacy` builds a small C shim for locating `errno`, so cross-compilation needs
 a C compiler and libc headers for the target.
+
+The optional `curl` feature also needs system libcurl headers and library.

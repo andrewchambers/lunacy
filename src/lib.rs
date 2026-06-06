@@ -15,6 +15,8 @@ extern crate std;
 #[cfg(unix)]
 mod allocator;
 pub mod cstr;
+#[cfg(all(unix, feature = "curl"))]
+pub mod curl;
 #[cfg(unix)]
 pub mod env;
 pub mod errno;
@@ -30,6 +32,8 @@ pub mod pthread;
 pub mod runtime;
 #[cfg(unix)]
 pub mod time;
+#[cfg(unix)]
+pub mod tty;
 
 #[cfg(unix)]
 pub use allocator::LibcAllocator;
