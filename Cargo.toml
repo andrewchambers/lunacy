@@ -1,0 +1,29 @@
+[package]
+name = "lunacy"
+version = "0.1.0"
+edition = "2024"
+description = "A no_std + alloc Rust wrapper around system libc."
+
+[build-dependencies]
+cc = "1"
+
+[features]
+default = []
+no-std-examples = []
+pthread = []
+
+[[example]]
+name = "hello"
+test = false
+required-features = ["no-std-examples"]
+
+[[example]]
+name = "threading"
+test = false
+required-features = ["no-std-examples", "pthread"]
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
