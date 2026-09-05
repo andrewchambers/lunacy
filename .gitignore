@@ -1,4 +1,6 @@
 /target
+/.cosmocc/
+/cargo-cosmopolitan/
 
 
 # Added by cargo
