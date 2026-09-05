@@ -3,8 +3,8 @@
 Lunacy is an alternative standard library for rust that is designed
 with C programmers in mind.
 
-It runs even minimal nostd rust environment and provides C like alternatives to the 'normal'
-way of doing things in rust.
+It runs even with a minimal nostd rust environment and provides C 
+like alternatives to the 'normal' way of doing things in rust.
 
 ## Project goals
 
