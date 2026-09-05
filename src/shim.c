@@ -9,6 +9,10 @@
 
 /* Read constants through the target's headers; Rust never assumes their values. */
 #define LUNACY_ERRNO(name, symbol) int symbol(void) { return name; }
+LUNACY_ERRNO(E2BIG, lunacy_e2big)
+LUNACY_ERRNO(ECHILD, lunacy_echild)
+LUNACY_ERRNO(ENOEXEC, lunacy_enoexec)
+LUNACY_ERRNO(ETXTBSY, lunacy_etxtbsy)
 LUNACY_ERRNO(EACCES, lunacy_eacces)
 LUNACY_ERRNO(EAGAIN, lunacy_eagain)
 LUNACY_ERRNO(EBADF, lunacy_ebadf)

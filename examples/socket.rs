@@ -38,6 +38,7 @@ fn run() -> Result<(), Errno> {
     Ok(())
 }
 
+#[cfg_attr(all(panic = "abort", feature = "macros"), lunacy::main)]
 fn entry(_: lunacy::Args<'_>) -> i32 {
     match run() {
         Ok(()) => 0,
@@ -45,7 +46,7 @@ fn entry(_: lunacy::Args<'_>) -> i32 {
     }
 }
 
-#[cfg(panic = "abort")]
+#[cfg(all(panic = "abort", not(feature = "macros")))]
 lunacy::lunacy_main!(entry);
 
 #[cfg(not(panic = "abort"))]

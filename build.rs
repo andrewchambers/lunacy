@@ -10,6 +10,7 @@ fn main() {
     println!("cargo:rerun-if-changed=src/compat.h");
     println!("cargo:rerun-if-changed=src/time.c");
     println!("cargo:rerun-if-changed=src/fs.c");
+    println!("cargo:rerun-if-changed=src/process.c");
     let pthread = std::env::var_os("CARGO_FEATURE_PTHREAD").is_some();
     let mut build = cc::Build::new();
     build
@@ -18,6 +19,7 @@ fn main() {
         .file("src/readiness.c")
         .file("src/time.c")
         .file("src/fs.c")
+        .file("src/process.c")
         .std("c99")
         .warnings(true);
     if pthread {

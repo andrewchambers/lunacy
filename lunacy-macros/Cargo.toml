@@ -1,0 +1,15 @@
+[package]
+name = "lunacy-macros"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Optional entry-point attribute for lunacy."
+license = "MIT"
+repository = "https://github.com/andrewchambers/lunacy"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "1"
+syn = { version = "2", features = ["full"] }

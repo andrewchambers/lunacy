@@ -1,32 +1,22 @@
 #![cfg_attr(panic = "abort", no_std)]
 #![cfg_attr(panic = "abort", no_main)]
 
-use lunacy::{Args, Errno, Mode, OpenFlags, fstat, open};
+use lunacy::{Args, Mode, OpenFlags, fstat, open, print};
 
 mod program {
-    use super::*;
+    use super::{Args, Mode, OpenFlags, fstat, open, print};
 
-    fn run(args: Args<'_>) -> Result<usize, Errno> {
-        let path = args.get(1).unwrap_or(c"README.md");
-        let file = open(path, OpenFlags::rdonly(), Mode::empty())?;
-        let info = fstat(file.as_fd())?;
-        lunacy::println!("{}: {} bytes", path.to_string_lossy(), info.st_size)
-        // file closes on drop; as_fd() only borrowed it for fstat.
-    }
-
+    #[cfg_attr(all(panic = "abort", feature = "macros"), lunacy::main)]
     pub(super) fn main(args: Args<'_>) -> i32 {
-        match run(args) {
-            // Printing returns the native count; a short write is still Ok(n).
-            Ok(_) => 0,
-            Err(error) => {
-                let _ = lunacy::eprintln!("file_info: {error:?}");
-                1
-            }
-        }
+        let path = args.get(1).unwrap_or(c"README.md");
+        let file = open(path, OpenFlags::rdonly(), Mode::empty()).expect("open failed");
+        let info = fstat(file.as_fd()).expect("fstat failed");
+        print!("{}: {} bytes\n", path.to_string_lossy(), info.st_size).expect("write failed");
+        0
     }
 }
 
-#[cfg(panic = "abort")]
+#[cfg(all(panic = "abort", not(feature = "macros")))]
 lunacy::lunacy_main!(program::main);
 
 #[cfg(not(panic = "abort"))]

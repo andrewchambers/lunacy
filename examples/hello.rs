@@ -8,6 +8,7 @@ use lunacy::Args;
 mod program {
     use super::*;
 
+    #[cfg_attr(all(panic = "abort", feature = "macros"), lunacy::main)]
     pub(super) fn main(args: Args<'_>) -> i32 {
         let name = args.get(1).unwrap_or(c"lunacy");
         let name = name.to_string_lossy();
@@ -19,7 +20,7 @@ mod program {
     }
 }
 
-#[cfg(panic = "abort")]
+#[cfg(all(panic = "abort", not(feature = "macros")))]
 lunacy::lunacy_main!(program::main);
 
 // Cargo's test profile forces unwinding. Let it compile the same example body

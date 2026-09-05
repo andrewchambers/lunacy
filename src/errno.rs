@@ -45,6 +45,14 @@ macro_rules! errno_codes {
 }
 
 errno_codes! {
+    /// Argument and environment data exceeds the exec limit.
+    E2BIG => lunacy_e2big,
+    /// No matching child process.
+    ECHILD => lunacy_echild,
+    /// Executable format not recognized.
+    ENOEXEC => lunacy_enoexec,
+    /// Executable file is busy.
+    ETXTBSY => lunacy_etxtbsy,
     /// Permission denied.
     EACCES => lunacy_eacces,
     /// Resource temporarily unavailable (also EWOULDBLOCK where aliased).

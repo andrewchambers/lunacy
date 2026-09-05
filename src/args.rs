@@ -8,6 +8,7 @@ use core::{
 /// A read-only view of argc/argv. No allocation or Unicode conversion is made.
 ///
 /// `lunacy_main!(entry)` passes this view to `fn entry(args: Args<'_>) -> i32`.
+/// The optional `#[lunacy::main]` attribute passes the same view.
 /// Argument storage must not be modified by foreign code while borrowed.
 pub struct Args<'a> {
     argc: usize,

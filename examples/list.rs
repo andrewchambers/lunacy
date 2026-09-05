@@ -20,6 +20,7 @@ fn run(args: &Args<'_>) -> Result<(), Errno> {
     closedir(directory)
 }
 
+#[cfg_attr(all(panic = "abort", feature = "macros"), lunacy::main)]
 fn entry(args: Args<'_>) -> i32 {
     match run(&args) {
         Ok(()) => 0,
@@ -35,7 +36,7 @@ fn entry(args: Args<'_>) -> i32 {
     }
 }
 
-#[cfg(panic = "abort")]
+#[cfg(all(panic = "abort", not(feature = "macros")))]
 lunacy::lunacy_main!(entry);
 
 #[cfg(not(panic = "abort"))]

@@ -8,6 +8,8 @@
 //! The allocator and executable entry point are opt-in. Libc operations and
 //! their types are available at the crate root; threads and mutexes live in
 //! `pthread` when the `pthread` feature is enabled (the default).
+//! The `macros` feature (also enabled by default) adds `#[lunacy::main]` for
+//! executable startup.
 
 extern crate alloc;
 
@@ -21,6 +23,7 @@ mod fs;
 mod io;
 mod poll;
 mod printing;
+mod process;
 #[cfg(feature = "pthread")]
 pub mod pthread;
 mod runtime;
@@ -43,12 +46,18 @@ pub use fs::{
 };
 pub use io::{read, write};
 pub use poll::{PollEvents, PollFd, poll};
+pub use process::{
+    _exit, CStrArray, Pid, WaitOptions, WaitStatus, execv, execve, execvp, fork, waitpid,
+};
 pub use select::{FdSet, TimeVal, select};
 pub use socket::{
     AddressFamily, MsgFlags, Shutdown, SockAddr, SocketType, accept, bind, connect, getpeername,
     getsockname, listen, recv, send, shutdown, socket, socketpair,
 };
 pub use time::{Clock, Timespec, clock_getres, clock_gettime, nanosleep};
+
+#[cfg(feature = "macros")]
+pub use lunacy_macros::main;
 
 #[doc(hidden)]
 pub use runtime::abort;

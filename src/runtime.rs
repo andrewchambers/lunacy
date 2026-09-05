@@ -12,6 +12,8 @@ pub fn abort() -> ! {
 /// Use `fn entry(_: lunacy::Args<'_>) -> i32` to ignore arguments.
 /// The return value becomes the process exit status. Build with `panic = "abort"`.
 /// The system's normal C startup code initializes libc before this entry point.
+/// With the optional `macros` feature, `#[lunacy::main]` on the entry function
+/// supplies this same setup without a separate macro invocation.
 ///
 /// This macro owns the executable's allocator and panic handler. Library users
 /// and std executables should use the individual APIs without invoking it.

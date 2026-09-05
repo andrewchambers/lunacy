@@ -7,9 +7,17 @@ description = "A small no_std Rust interface to system libc."
 license = "MIT"
 repository = "https://github.com/andrewchambers/lunacy"
 
+[workspace]
+members = ["lunacy-macros"]
+resolver = "3"
+
 [features]
-default = ["pthread"]
+default = ["pthread", "macros"]
 pthread = []
+macros = ["dep:lunacy-macros"]
+
+[dependencies]
+lunacy-macros = { version = "0.1.0", path = "lunacy-macros", optional = true }
 
 [build-dependencies]
 cc = "1"
@@ -34,12 +42,20 @@ name = "printing"
 harness = false
 
 [[test]]
+name = "process"
+harness = false
+
+[[test]]
 name = "pthread"
 required-features = ["pthread"]
 
 [[test]]
 name = "mutex"
 required-features = ["pthread"]
+
+[[test]]
+name = "main_macro"
+required-features = ["macros"]
 
 [[example]]
 name = "hello"
@@ -74,6 +90,11 @@ bench = false
 
 [[example]]
 name = "list"
+test = false
+bench = false
+
+[[example]]
+name = "process"
 test = false
 bench = false
 
