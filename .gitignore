@@ -1,6 +1,7 @@
 /target
 /.cosmocc/
 /cargo-cosmopolitan/
+/cosmo-bug-report/
 
 
 # Added by cargo
