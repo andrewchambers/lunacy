@@ -46,6 +46,29 @@ cargo run --release --example list -- .
 cargo run --release --example threading
 ```
 
+## Using cargo-cosmopolitan
+
+[cargo-cosmopolitan](https://github.com/andrewchambers/cargo-cosmopolitan) builds
+`no_std + alloc` Lunacy applications as Cosmopolitan Actually Portable Executables:
+one file containing x86-64 and ARM64 code, linked to Cosmopolitan libc. The
+`#[lunacy::main]` entry point shown above supplies the runtime, allocator, and
+panic handler.
+
+Follow its [installation instructions](https://github.com/andrewchambers/cargo-cosmopolitan#install)
+to set up Cosmopolitan and the pinned Rust nightly with `rust-src` on a Linux
+build host. Then, from your application's directory:
+
+```sh
+cargo cosmopolitan preflight
+cargo cosmopolitan build --release
+cargo cosmopolitan run --release -- arguments
+```
+
+The executable is written to `target/cosmopolitan/release/<name>.com`.
+Use a separate application package depending on Lunacy: this repository's examples
+pull in the `libc` development dependency, which does not support the Cosmopolitan
+target. Full Rust `std` and native Rust TLS are also unsupported.
+
 ## More
 
 - [Examples](examples/), including [fork and exec](examples/process.rs).
