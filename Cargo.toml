@@ -2,34 +2,85 @@
 name = "lunacy"
 version = "0.1.0"
 edition = "2024"
-description = "A no_std + alloc Rust wrapper around system libc."
+rust-version = "1.85"
+description = "A small no_std Rust interface to system libc."
+
+[features]
+default = ["pthread"]
+pthread = []
 
 [build-dependencies]
 cc = "1"
 
-[features]
-curl = []
-default = []
-no-std-examples = []
-pthread = []
+[dev-dependencies]
+libc = { version = "0.2", default-features = false }
+
+[[test]]
+name = "env"
+harness = false
+
+[[test]]
+name = "time_interrupt"
+harness = false
+
+[[test]]
+name = "cwd"
+harness = false
+
+[[test]]
+name = "printing"
+harness = false
+
+[[test]]
+name = "pthread"
+required-features = ["pthread"]
+
+[[test]]
+name = "mutex"
+required-features = ["pthread"]
 
 [[example]]
 name = "hello"
 test = false
-required-features = ["no-std-examples"]
+bench = false
+
+[[example]]
+name = "file_info"
+test = false
+bench = false
+
+[[example]]
+name = "socket"
+test = false
+bench = false
+
+[[example]]
+name = "pipe"
+test = false
+bench = false
 
 [[example]]
 name = "threading"
 test = false
-required-features = ["no-std-examples", "pthread"]
+bench = false
+required-features = ["pthread"]
 
 [[example]]
-name = "curl"
+name = "time"
 test = false
-required-features = ["no-std-examples", "curl"]
+bench = false
+
+[[example]]
+name = "list"
+test = false
+bench = false
 
 [profile.dev]
 panic = "abort"
 
 [profile.release]
 panic = "abort"
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true

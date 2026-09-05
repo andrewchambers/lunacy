@@ -1,29 +1,29 @@
 #![cfg_attr(panic = "abort", no_std)]
 #![cfg_attr(panic = "abort", no_main)]
 
-extern crate alloc;
-
-use alloc::sync::Arc;
-use lunacy::{Errno, fd::BorrowedFd, io::write, pthread, sync::Mutex};
+use lunacy::{
+    Errno,
+    fd::BorrowedFd,
+    io::write,
+    time::{Clock, Timespec, clock_getres, clock_gettime, nanosleep},
+};
 
 fn run() -> Result<(), Errno> {
-    let count = Arc::new(Mutex::new(0usize)?);
-    let worker_count = Arc::clone(&count);
-    let worker = pthread::spawn(move || -> Result<(), Errno> {
-        for _ in 0..1000 {
-            *worker_count.lock()? += 1;
-        }
-        Ok(())
-    })?;
-    for _ in 0..1000 {
-        *count.lock()? += 1;
-    }
-    worker.join()??;
-    if *count.lock()? != 2000 {
+    let _wall_time = clock_gettime(Clock::Realtime)?;
+    let _resolution = clock_getres(Clock::Monotonic)?;
+    let before = clock_gettime(Clock::Monotonic)?;
+    nanosleep(
+        &Timespec {
+            tv_sec: 0,
+            tv_nsec: 1_000_000,
+        },
+        None,
+    )?;
+    let after = clock_gettime(Clock::Monotonic)?;
+    if (after.tv_sec, after.tv_nsec) < (before.tv_sec, before.tv_nsec) {
         return Err(Errno::EIO);
     }
-
-    let message = b"two threads counted to 2000\n";
+    let message = b"clocks and sleep work\n";
     // SAFETY: This example assumes stdout is open and never closes it.
     let stdout = unsafe { BorrowedFd::borrow_raw(1) };
     if write(stdout, message)? != message.len() {

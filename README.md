@@ -1,51 +1,71 @@
 # lunacy
 
-`lunacy` is a `#![no_std]` Rust library for wrapping system libc while still
-being usable with `alloc`.
+Lunacy is an alternative standard library for rust that is designed
+with C programmers in mind.
 
-The initial API is intentionally small:
+It runs as a nostd rust environment and provides C like alternatives to the 'normal'
+way of doing things in rust.
 
-- `lunacy::ffi` exposes the raw C ABI surface used by this crate.
-- With the `curl` feature, `lunacy::curl` provides thin libcurl easy wrappers.
-- `Errno` and `Result<T>` avoid `std::io::Error`.
-- Errno values used by wrappers are read through C helpers, not Rust constants.
-- `ErrnoName` provides symbolic names such as `EINTR` and `ENOENT`, with
-  runtime mapping through C for libcs with dynamic errno values.
-- Unix environment helpers wrap `getenv` and unsafe `setenv`.
-- Unix file descriptor helpers accept `RawFd`, `BorrowedFd`, and references to
-  `OwnedFd`.
-- Safe Unix I/O helpers wrap `pipe`, `dup`, `dup2`, `read`, `write`,
-  `write_all`, `close`, `fsync`, `lseek`, `poll`, `select`, and common
-  descriptor flags.
-- Unix standard fd constants expose `STDIN`, `STDOUT`, and `STDERR`.
-- Unix path helpers wrap `open`, `open_mode`, `stat`, `fstat`, `mkdir`,
-  `rmdir`, `rename`, and `unlink`; open calls return `OwnedFd`.
-- Unix networking helpers wrap `socket`, `connect`, `bind`, `listen`, `accept`,
-  `shutdown`, `send`, `recv`, `sendto`, and `recvfrom` with C-backed constants
-  and IPv4/IPv6 address conversion.
-- Unix time helpers wrap `time`, `clock_gettime`, `gettimeofday`, and
-  `nanosleep`, including a retrying `sleep`.
-- Unix terminal helpers wrap `isatty`, raw mode setup/restore, and terminal
-  window-size queries.
-- `LibcAllocator` can be used as a no_std global allocator backed by libc.
-- With the `pthread` feature, `lunacy::pthread` provides heap-backed opaque
-  pthread handles for `Thread` and `Mutex<T>`.
+## Project goals
+
+
+- Remove layers of abstraction between rust and the OS interfaces.
+- Add convenience and safety to some of the more error prone C like interfaces.
+- Produce tiny statically linked binaries.
+- Support cosmopolitan libc explicitly.
+
+## A small program
 
 ```rust
 #![no_std]
+#![no_main]
 
-extern crate alloc;
+use lunacy::{Errno, args::Args, fs::{self, Mode, OpenFlags}};
 
-use lunacy::LibcAllocator;
+fn run(args: Args<'_>) -> Result<usize, Errno> {
+    let path = args.get(1).unwrap_or(c"README.md");
+    let file = fs::open(path, OpenFlags::rdonly(), Mode::empty())?;
+    let info = fs::fstat(file.as_fd())?;
+    lunacy::println!("{}: {} bytes", path.to_string_lossy(), info.st_size)
+}
 
-#[global_allocator]
-static ALLOCATOR: LibcAllocator = LibcAllocator;
+fn main(args: Args<'_>) -> i32 {
+    match run(args) {
+        Ok(_) => 0,
+        Err(error) => {
+            let _ = lunacy::eprintln!("file_info: {error:?}");
+            1
+        }
+    }
+}
+
+lunacy::lunacy_main!(main);
 ```
 
-This crate assumes the target has a system libc. It is not meant for bare-metal
-targets that lack libc.
+`file` owns the descriptor and closes it on drop; `as_fd()` borrows it.
+Printing returns a byte count or error; a short write is still `Ok(n)`.
 
-`lunacy` builds a small C shim for locating `errno`, so cross-compilation needs
-a C compiler and libc headers for the target.
+`lunacy_main!` supplies the libc allocator, C entry point, and an aborting panic
+handler. Set `panic = "abort"` in your application's Cargo profiles; see the
+[build guide](docs/building.md). Regular `std` programs can use lunacy without
+the macro.
 
-The optional `curl` feature also needs system libcurl headers and library.
+## Try it
+
+With Rust 1.85+, a C11 compiler, and POSIX libc/pthread development files:
+
+```sh
+cargo run --release --example file_info -- README.md
+cargo run --release --example list -- .
+cargo run --release --example threading
+```
+
+## More
+
+- [Examples](examples/): [hello](examples/hello.rs), [file metadata](examples/file_info.rs),
+  [arguments and directories](examples/list.rs),
+  [pipes and environment](examples/pipe.rs), [sockets and readiness](examples/socket.rs),
+  [threads and mutexes](examples/threading.rs), [clocks and sleep](examples/time.rs).
+- [API source and documentation](src/lib.rs): run `cargo doc --no-deps --open`
+  to browse the API locally.
+- [Building, static linking, and development checks](docs/building.md).

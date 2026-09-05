@@ -1,43 +1,43 @@
-use core::alloc::{GlobalAlloc, Layout};
-use core::ptr;
+//! Rust allocation backed by the system libc heap.
 
-/// A global allocator backed by the target's system libc.
+use core::alloc::{GlobalAlloc, Layout};
+
+use crate::sys;
+
+/// A global allocator backed by malloc, calloc, realloc, and free.
 ///
-/// This allocator uses `posix_memalign` so Rust allocation alignment
-/// requirements are preserved, then releases memory with `free`.
+/// Larger alignments use posix_memalign; reallocating those blocks allocates,
+/// copies, and frees. Failures return null and preserve the old allocation.
+/// Merely depending on lunacy does not register this allocator.
 ///
-/// ```rust,ignore
-/// #![no_std]
-///
-/// extern crate alloc;
-///
-/// use lunacy::LibcAllocator;
-///
-/// #[global_allocator]
-/// static ALLOCATOR: LibcAllocator = LibcAllocator;
 /// ```
-#[derive(Clone, Copy, Debug, Default)]
+/// #[global_allocator]
+/// static ALLOCATOR: lunacy::allocator::LibcAllocator =
+///     lunacy::allocator::LibcAllocator;
+/// ```
 pub struct LibcAllocator;
 
+// SAFETY: The C shim satisfies Layout's size/alignment, preserves contents on
+// realloc, and leaves allocations intact on failure. libc supplies thread safety.
+// These methods do not unwind or call Rust allocation routines.
 unsafe impl GlobalAlloc for LibcAllocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        let size = layout.size().max(1);
-        let align = layout
-            .align()
-            .max(core::mem::size_of::<*mut crate::ffi::c_void>());
-        let mut out = ptr::null_mut();
-
-        let status = unsafe { crate::ffi::posix_memalign(&mut out, align, size) };
-        if status == 0 {
-            out.cast()
-        } else {
-            ptr::null_mut()
-        }
+        // SAFETY: GlobalAlloc callers provide a valid, nonzero layout.
+        unsafe { sys::lunacy_alloc(layout.size(), layout.align()).cast() }
     }
 
     unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
-        unsafe {
-            crate::ffi::free(ptr.cast());
-        }
+        // SAFETY: All allocations from this allocator can be released with free.
+        unsafe { sys::free(ptr.cast()) }
+    }
+
+    unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
+        // SAFETY: Same layout requirements as alloc; the shim zeroes every byte.
+        unsafe { sys::lunacy_alloc_zeroed(layout.size(), layout.align()).cast() }
+    }
+
+    unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
+        // SAFETY: Caller provides a live allocation, its layout, and valid size.
+        unsafe { sys::lunacy_realloc(ptr.cast(), layout.size(), layout.align(), new_size).cast() }
     }
 }

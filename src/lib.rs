@@ -1,40 +1,38 @@
 #![no_std]
 #![deny(unsafe_op_in_unsafe_fn)]
 #![warn(missing_docs)]
-
-//! `no_std` wrappers around system libc.
+//! A small Rust interface to system libc.
 //!
-//! `lunacy` keeps the raw C ABI surface it uses available through [`ffi`] and
-//! layers small Rust conveniences on top without depending on `std`.
+//! Read/write calls preserve libc's behavior without buffering or retry loops.
+//! Printing macros format into temporary allocated storage before one write.
+//! The allocator and executable entry point are opt-in.
 
 extern crate alloc;
 
-#[cfg(test)]
-extern crate std;
-
-#[cfg(unix)]
-mod allocator;
-pub mod cstr;
-#[cfg(all(unix, feature = "curl"))]
-pub mod curl;
-#[cfg(unix)]
+pub mod allocator;
+pub mod args;
+pub mod dir;
 pub mod env;
 pub mod errno;
-#[cfg(unix)]
 pub mod fd;
-pub mod ffi;
-#[cfg(unix)]
 pub mod fs;
-#[cfg(unix)]
-pub mod net;
-#[cfg(all(unix, feature = "pthread"))]
+pub mod io;
+pub mod poll;
+mod printing;
+#[cfg(feature = "pthread")]
 pub mod pthread;
-pub mod runtime;
-#[cfg(unix)]
+mod runtime;
+pub mod select;
+pub mod socket;
+#[cfg(feature = "pthread")]
+pub mod sync;
+mod sys;
 pub mod time;
-#[cfg(unix)]
-pub mod tty;
 
-#[cfg(unix)]
-pub use allocator::LibcAllocator;
-pub use errno::{Errno, ErrnoName, Result};
+pub use errno::Errno;
+
+#[doc(hidden)]
+pub use runtime::abort;
+
+#[doc(hidden)]
+pub use printing::print as __print;
