@@ -5,6 +5,7 @@ edition = "2024"
 rust-version = "1.85"
 description = "A small no_std Rust interface to system libc."
 license = "MIT"
+repository = "https://github.com/andrewchambers/lunacy"
 
 [features]
 default = ["pthread"]
