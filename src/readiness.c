@@ -5,15 +5,15 @@
 #include <string.h>
 #include <sys/select.h>
 
-_Static_assert(sizeof(fd_set) <= sizeof(struct lunacy_storage),
+LUNACY_STATIC_ASSERT(sizeof(fd_set) <= sizeof(struct lunacy_storage),
                "lunacy fd_set storage is too small for this target");
-_Static_assert(_Alignof(fd_set) <= _Alignof(struct lunacy_storage),
+LUNACY_STATIC_ASSERT(LUNACY_ALIGNOF(fd_set) <= LUNACY_ALIGNOF(struct lunacy_storage),
                "lunacy fd_set alignment is too small for this target");
-_Static_assert(sizeof(struct pollfd) == sizeof(struct lunacy_pollfd), "pollfd size mismatch");
-_Static_assert(_Alignof(struct pollfd) == _Alignof(struct lunacy_pollfd), "pollfd alignment mismatch");
-_Static_assert(offsetof(struct pollfd, fd) == offsetof(struct lunacy_pollfd, fd), "pollfd.fd mismatch");
-_Static_assert(offsetof(struct pollfd, events) == offsetof(struct lunacy_pollfd, events), "pollfd.events mismatch");
-_Static_assert(offsetof(struct pollfd, revents) == offsetof(struct lunacy_pollfd, revents), "pollfd.revents mismatch");
+LUNACY_STATIC_ASSERT(sizeof(struct pollfd) == sizeof(struct lunacy_pollfd), "pollfd size mismatch");
+LUNACY_STATIC_ASSERT(LUNACY_ALIGNOF(struct pollfd) == LUNACY_ALIGNOF(struct lunacy_pollfd), "pollfd alignment mismatch");
+LUNACY_STATIC_ASSERT(offsetof(struct pollfd, fd) == offsetof(struct lunacy_pollfd, fd), "pollfd.fd mismatch");
+LUNACY_STATIC_ASSERT(offsetof(struct pollfd, events) == offsetof(struct lunacy_pollfd, events), "pollfd.events mismatch");
+LUNACY_STATIC_ASSERT(offsetof(struct pollfd, revents) == offsetof(struct lunacy_pollfd, revents), "pollfd.revents mismatch");
 
 #define EVENT(name, value) short lunacy_##name(void) { return value; }
 EVENT(pollin, POLLIN)

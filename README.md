@@ -52,7 +52,8 @@ the macro.
 
 ## Try it
 
-With Rust 1.85+, a C11 compiler, and POSIX libc/pthread development files:
+With Rust 1.85+, a C99 compiler with GCC-compatible alignment extensions
+(such as GCC or Clang), and POSIX libc/pthread development files:
 
 ```sh
 cargo run --release --example file_info -- README.md

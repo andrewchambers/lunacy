@@ -1,14 +1,15 @@
 #define _POSIX_C_SOURCE 200809L
+#include "compat.h"
 #include <errno.h>
 #include <stdint.h>
 #include <time.h>
 
 /* Convert fields explicitly; Rust does not assume the native timespec layout. */
-_Static_assert(sizeof(time_t) <= sizeof(int64_t) && (time_t)-1 < 0,
+LUNACY_STATIC_ASSERT(sizeof(time_t) <= sizeof(int64_t) && (time_t)-1 < 0,
                "lunacy requires a signed time_t no wider than 64 bits");
-_Static_assert(sizeof(clockid_t) <= sizeof(int64_t) && (clockid_t)-1 < 0,
+LUNACY_STATIC_ASSERT(sizeof(clockid_t) <= sizeof(int64_t) && (clockid_t)-1 < 0,
                "lunacy requires a signed clockid_t no wider than 64 bits");
-_Static_assert(sizeof(long) <= sizeof(int64_t), "native nanoseconds must fit i64");
+LUNACY_STATIC_ASSERT(sizeof(long) <= sizeof(int64_t), "native nanoseconds must fit i64");
 
 int64_t lunacy_clock_realtime(void) { return CLOCK_REALTIME; }
 int64_t lunacy_clock_monotonic(void) { return CLOCK_MONOTONIC; }

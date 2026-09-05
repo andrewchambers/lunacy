@@ -1,11 +1,12 @@
 #ifndef LUNACY_ABI_H
 #define LUNACY_ABI_H
+#include "compat.h"
 #include <stddef.h>
 #include <stdint.h>
 
 /* Mirrored by sys::Storage. Native sizes/alignment are checked where used. */
 struct lunacy_storage {
-    _Alignas(16) unsigned char bytes[128];
+    LUNACY_ALIGNAS(16) unsigned char bytes[128];
 };
 
 /* Mirrored by poll::PollFd, checked against the native pollfd in readiness.c. */

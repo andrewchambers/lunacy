@@ -8,13 +8,13 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-_Static_assert(sizeof(struct sockaddr_storage) <= sizeof(struct lunacy_storage),
+LUNACY_STATIC_ASSERT(sizeof(struct sockaddr_storage) <= sizeof(struct lunacy_storage),
                "lunacy socket address storage is too small for this target");
-_Static_assert(_Alignof(struct sockaddr_storage) <= _Alignof(struct lunacy_storage),
+LUNACY_STATIC_ASSERT(LUNACY_ALIGNOF(struct sockaddr_storage) <= LUNACY_ALIGNOF(struct lunacy_storage),
                "lunacy socket address alignment is too small for this target");
-_Static_assert(sizeof(struct sockaddr_un) <= sizeof(struct sockaddr_storage),
+LUNACY_STATIC_ASSERT(sizeof(struct sockaddr_un) <= sizeof(struct sockaddr_storage),
                "sockaddr_un must fit sockaddr_storage");
-_Static_assert(sizeof(ssize_t) <= sizeof(intptr_t), "socket byte count must fit intptr_t");
+LUNACY_STATIC_ASSERT(sizeof(ssize_t) <= sizeof(intptr_t), "socket byte count must fit intptr_t");
 
 #define CONSTANT(name, value) int lunacy_##name(void) { return value; }
 CONSTANT(af_inet, AF_INET)

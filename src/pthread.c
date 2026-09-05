@@ -6,11 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-_Static_assert(sizeof(pthread_t) <= sizeof(struct lunacy_storage),
+LUNACY_STATIC_ASSERT(sizeof(pthread_t) <= sizeof(struct lunacy_storage),
                "lunacy pthread ID storage is too small for this target");
-_Static_assert(_Alignof(pthread_t) <= _Alignof(struct lunacy_storage),
+LUNACY_STATIC_ASSERT(LUNACY_ALIGNOF(pthread_t) <= LUNACY_ALIGNOF(struct lunacy_storage),
                "lunacy pthread ID alignment is too small for this target");
-_Static_assert(_Alignof(pthread_mutex_t) <= _Alignof(max_align_t),
+LUNACY_STATIC_ASSERT(LUNACY_ALIGNOF(pthread_mutex_t) <= LUNACY_MALLOC_ALIGNMENT,
                "native pthread mutex requires stronger alignment than malloc");
 
 /* pthread functions return error numbers directly, rather than setting errno. */

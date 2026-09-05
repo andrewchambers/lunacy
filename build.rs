@@ -7,6 +7,7 @@ fn main() {
     println!("cargo:rerun-if-changed=src/net.c");
     println!("cargo:rerun-if-changed=src/readiness.c");
     println!("cargo:rerun-if-changed=src/abi.h");
+    println!("cargo:rerun-if-changed=src/compat.h");
     println!("cargo:rerun-if-changed=src/time.c");
     println!("cargo:rerun-if-changed=src/fs.c");
     let pthread = std::env::var_os("CARGO_FEATURE_PTHREAD").is_some();
@@ -17,7 +18,7 @@ fn main() {
         .file("src/readiness.c")
         .file("src/time.c")
         .file("src/fs.c")
-        .std("c11")
+        .std("c99")
         .warnings(true);
     if pthread {
         println!("cargo:rerun-if-changed=src/pthread.c");

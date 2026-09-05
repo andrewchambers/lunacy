@@ -1,4 +1,5 @@
 #define _POSIX_C_SOURCE 200809L
+#include "compat.h"
 #include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -53,7 +54,7 @@ LUNACY_ERRNO(EXDEV, lunacy_exdev)
 int lunacy_errno(void) { return errno; }
 
 intptr_t lunacy_write(int fd, const unsigned char *buffer, size_t len) {
-    _Static_assert(sizeof(ssize_t) <= sizeof(intptr_t), "write result must fit intptr_t");
+    LUNACY_STATIC_ASSERT(sizeof(ssize_t) <= sizeof(intptr_t), "write result must fit intptr_t");
     return (intptr_t)write(fd, buffer, len);
 }
 
@@ -67,7 +68,7 @@ int lunacy_pipe(int *fds) { return pipe(fds); }
 int lunacy_close(int fd) { return close(fd); }
 
 intptr_t lunacy_read(int fd, unsigned char *buffer, size_t len) {
-    _Static_assert(sizeof(ssize_t) <= sizeof(intptr_t), "read result must fit intptr_t");
+    LUNACY_STATIC_ASSERT(sizeof(ssize_t) <= sizeof(intptr_t), "read result must fit intptr_t");
     return (intptr_t)read(fd, buffer, len);
 }
 
@@ -98,7 +99,7 @@ int lunacy_setenv(const char *name, const char *value, int overwrite) {
 int lunacy_unsetenv(const char *name) { return unsetenv(name); }
 
 void *lunacy_alloc(size_t size, size_t align) {
-    if (align <= _Alignof(max_align_t)) {
+    if (align <= LUNACY_MALLOC_ALIGNMENT) {
         return malloc(size);
     }
     void *ptr = NULL;
@@ -109,7 +110,7 @@ void *lunacy_alloc(size_t size, size_t align) {
 }
 
 void *lunacy_alloc_zeroed(size_t size, size_t align) {
-    if (align <= _Alignof(max_align_t)) {
+    if (align <= LUNACY_MALLOC_ALIGNMENT) {
         return calloc(1, size);
     }
     void *ptr = lunacy_alloc(size, align);
@@ -120,7 +121,7 @@ void *lunacy_alloc_zeroed(size_t size, size_t align) {
 }
 
 void *lunacy_realloc(void *ptr, size_t old_size, size_t align, size_t new_size) {
-    if (align <= _Alignof(max_align_t)) {
+    if (align <= LUNACY_MALLOC_ALIGNMENT) {
         return realloc(ptr, new_size);
     }
     void *next = lunacy_alloc(new_size, align);

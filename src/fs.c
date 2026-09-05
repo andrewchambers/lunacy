@@ -2,6 +2,7 @@
 #undef _GNU_SOURCE
 #define _POSIX_C_SOURCE 200809L
 #define _XOPEN_SOURCE 700
+#include "compat.h"
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -39,13 +40,13 @@ MODE(S_ISUID, isuid)
 MODE(S_ISGID, isgid)
 MODE(S_ISVTX, isvtx)
 
-_Static_assert(sizeof(mode_t) <= sizeof(uint32_t), "mode_t must fit u32");
-_Static_assert(sizeof(off_t) <= sizeof(int64_t) && (off_t)-1 < 0,
+LUNACY_STATIC_ASSERT(sizeof(mode_t) <= sizeof(uint32_t), "mode_t must fit u32");
+LUNACY_STATIC_ASSERT(sizeof(off_t) <= sizeof(int64_t) && (off_t)-1 < 0,
                "lunacy requires signed off_t no wider than i64");
-_Static_assert(sizeof(time_t) <= sizeof(int64_t) && (time_t)-1 < 0,
+LUNACY_STATIC_ASSERT(sizeof(time_t) <= sizeof(int64_t) && (time_t)-1 < 0,
                "lunacy requires signed time_t no wider than i64");
-_Static_assert(sizeof(long) <= sizeof(int64_t), "nanoseconds must fit i64");
-#define FITS_U64(type) _Static_assert(sizeof(type) <= sizeof(uint64_t), #type " must fit u64")
+LUNACY_STATIC_ASSERT(sizeof(long) <= sizeof(int64_t), "nanoseconds must fit i64");
+#define FITS_U64(type) LUNACY_STATIC_ASSERT(sizeof(type) <= sizeof(uint64_t), #type " must fit u64")
 FITS_U64(dev_t);
 FITS_U64(ino_t);
 FITS_U64(nlink_t);

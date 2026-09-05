@@ -1,8 +1,15 @@
 # Building lunacy
 
-Requires Rust 1.85+, a C11 compiler, and POSIX libc/pthread development headers
-and libraries. The C shim is compiled by `cc`; there are no runtime Cargo
-dependencies. `libc` is a development dependency used by tests.
+Requires Rust 1.85+, a C99 compiler with GCC-compatible alignment extensions
+(such as GCC or Clang), and POSIX libc/pthread development headers and libraries.
+The C shim is compiled by `cc`; there are no runtime Cargo dependencies.
+`libc` is a development dependency used by tests.
+
+The shim uses `-std=c99`, with `__alignof__` and `__attribute__((aligned))`
+for ABI alignment. Compile-time ABI assertions use C99 array bounds. It does
+not require C11 headers or language features. The libc interfaces currently
+target POSIX.1-2008; older operating systems and compiler versions have not
+been validated.
 
 ## Optional threading
 
@@ -68,7 +75,7 @@ Cosmopolitan and other platforms have not yet been validated.
 
 ```sh
 cargo fmt --check
-cargo test
+CFLAGS="-pedantic-errors -Werror" cargo test
 cargo test --no-default-features
 cargo clippy --all-targets -- -D warnings
 cargo clippy --all-targets --no-default-features -- -D warnings
