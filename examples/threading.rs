@@ -4,7 +4,11 @@
 extern crate alloc;
 
 use alloc::sync::Arc;
-use lunacy::{Errno, fd::BorrowedFd, io::write, pthread, sync::Mutex};
+use lunacy::{
+    BorrowedFd, Errno,
+    pthread::{self, Mutex},
+    write,
+};
 
 fn run() -> Result<(), Errno> {
     let count = Arc::new(Mutex::new(0usize)?);
@@ -32,7 +36,7 @@ fn run() -> Result<(), Errno> {
     Ok(())
 }
 
-fn entry(_: lunacy::args::Args<'_>) -> i32 {
+fn entry(_: lunacy::Args<'_>) -> i32 {
     match run() {
         Ok(()) => 0,
         Err(_) => 1,
@@ -45,6 +49,6 @@ lunacy::lunacy_main!(entry);
 #[cfg(not(panic = "abort"))]
 fn main() {
     // SAFETY: This example ignores arguments; an empty vector needs no storage.
-    let args = unsafe { lunacy::args::Args::from_raw(0, core::ptr::null()) };
+    let args = unsafe { lunacy::Args::from_raw(0, core::ptr::null()) };
     std::process::exit(entry(args));
 }

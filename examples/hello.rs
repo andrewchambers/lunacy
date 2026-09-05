@@ -3,7 +3,7 @@
 
 extern crate alloc;
 
-use lunacy::args::Args;
+use lunacy::Args;
 
 mod program {
     use super::*;

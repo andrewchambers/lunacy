@@ -99,13 +99,13 @@ impl<T> Drop for Mutex<T> {
 /// Exclusive access to mutex data. Dropping this guard unlocks on the same thread.
 ///
 /// ```compile_fail
-/// let mutex = Box::leak(Box::new(lunacy::sync::Mutex::new(0).unwrap()));
+/// let mutex = Box::leak(Box::new(lunacy::pthread::Mutex::new(0).unwrap()));
 /// let guard = mutex.lock().unwrap();
 /// std::thread::spawn(move || drop(guard)); // pthread unlock must stay on its owner.
 /// ```
 ///
 /// ```compile_fail
-/// let mutex = lunacy::sync::Mutex::new(std::cell::Cell::new(0)).unwrap();
+/// let mutex = lunacy::pthread::Mutex::new(std::cell::Cell::new(0)).unwrap();
 /// let guard = mutex.lock().unwrap();
 /// std::thread::scope(|scope| {
 ///     scope.spawn(|| guard.set(1)); // Sharing a guard requires Sync data.

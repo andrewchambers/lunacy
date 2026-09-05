@@ -9,7 +9,7 @@ pub fn abort() -> ! {
 ///
 /// Invoke once at module scope in a `#![no_std]`, `#![no_main]` executable.
 /// `lunacy_main!(entry)` calls `fn(Args<'_>) -> core::ffi::c_int`.
-/// Use `fn entry(_: lunacy::args::Args<'_>) -> i32` to ignore arguments.
+/// Use `fn entry(_: lunacy::Args<'_>) -> i32` to ignore arguments.
 /// The return value becomes the process exit status. Build with `panic = "abort"`.
 /// The system's normal C startup code initializes libc before this entry point.
 ///
@@ -20,7 +20,7 @@ macro_rules! lunacy_main {
     ($entry:path) => {
         const _: () = {
             #[global_allocator]
-            static ALLOCATOR: $crate::allocator::LibcAllocator = $crate::allocator::LibcAllocator;
+            static ALLOCATOR: $crate::LibcAllocator = $crate::LibcAllocator;
 
             #[panic_handler]
             fn panic(_: &::core::panic::PanicInfo<'_>) -> ! {
@@ -46,10 +46,10 @@ macro_rules! lunacy_main {
                 argc: ::core::ffi::c_int,
                 argv: *mut *mut ::core::ffi::c_char,
             ) -> ::core::ffi::c_int {
-                let main: fn($crate::args::Args<'_>) -> ::core::ffi::c_int = $entry;
+                let main: fn($crate::Args<'_>) -> ::core::ffi::c_int = $entry;
                 // SAFETY: libc supplies argc valid strings. This view exists
                 // only during main; foreign code must not mutate borrowed argv.
-                let args = unsafe { $crate::args::Args::from_raw(argc as usize, argv.cast()) };
+                let args = unsafe { $crate::Args::from_raw(argc as usize, argv.cast()) };
                 main(args)
             }
         };

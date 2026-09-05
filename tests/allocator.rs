@@ -1,5 +1,5 @@
 use core::alloc::{GlobalAlloc, Layout};
-use lunacy::allocator::LibcAllocator;
+use lunacy::LibcAllocator;
 
 #[test]
 fn allocation_alignment_and_zeroing() {

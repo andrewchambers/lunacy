@@ -1,4 +1,4 @@
-//! Safe ownership of pthread-backed threads and their return values.
+//! Threads and mutexes backed by pthreads, enabled by the `pthread` feature.
 //!
 //! Thread panics abort at the C callback boundary, even in std applications with
 //! unwinding enabled. Foreign cancellation, pthread_exit through Rust frames,
@@ -14,6 +14,8 @@ use core::{
 };
 
 use crate::{Errno, sys};
+
+pub use crate::sync::{Mutex, MutexGuard};
 
 struct Packet<T> {
     result: UnsafeCell<Option<T>>,

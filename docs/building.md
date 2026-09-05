@@ -6,8 +6,8 @@ dependencies. `libc` is a development dependency used by tests.
 
 ## Optional threading
 
-The `pthread` feature enables the `pthread` and `sync` modules and is enabled
-by default. To omit these APIs and the pthread development requirement, set
+The `pthread` feature enables threads and mutexes under `lunacy::pthread`.
+It is enabled by default. To omit these APIs and the pthread development requirement, set
 `default-features = false` in your dependency declaration, or build with:
 
 ```sh

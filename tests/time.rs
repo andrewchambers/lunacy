@@ -1,7 +1,4 @@
-use lunacy::{
-    Errno,
-    time::{Clock, Timespec, clock_getres, clock_gettime, nanosleep},
-};
+use lunacy::{Clock, Errno, Timespec, clock_getres, clock_gettime, nanosleep};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 fn duration(value: Timespec) -> Duration {

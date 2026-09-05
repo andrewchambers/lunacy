@@ -3,7 +3,7 @@
 Lunacy is an alternative standard library for rust that is designed
 with C programmers in mind.
 
-It runs as a nostd rust environment and provides C like alternatives to the 'normal'
+It runs even minimal nostd rust environment and provides C like alternatives to the 'normal'
 way of doing things in rust.
 
 ## Project goals
@@ -20,12 +20,12 @@ way of doing things in rust.
 #![no_std]
 #![no_main]
 
-use lunacy::{Errno, args::Args, fs::{self, Mode, OpenFlags}};
+use lunacy::{Args, Errno, Mode, OpenFlags, fstat, open};
 
 fn run(args: Args<'_>) -> Result<usize, Errno> {
     let path = args.get(1).unwrap_or(c"README.md");
-    let file = fs::open(path, OpenFlags::rdonly(), Mode::empty())?;
-    let info = fs::fstat(file.as_fd())?;
+    let file = open(path, OpenFlags::rdonly(), Mode::empty())?;
+    let info = fstat(file.as_fd())?;
     lunacy::println!("{}: {} bytes", path.to_string_lossy(), info.st_size)
 }
 

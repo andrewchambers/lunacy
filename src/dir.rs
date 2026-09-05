@@ -39,7 +39,7 @@ impl Drop for Dir {
 ///
 /// The name cannot outlive or overlap another read of the stream:
 /// ```compile_fail
-/// use lunacy::dir::{Dir, readdir};
+/// use lunacy::{Dir, readdir};
 /// fn invalid(dir: &mut Dir) {
 ///     let first = readdir(dir).unwrap().unwrap();
 ///     let second = readdir(dir);
@@ -47,7 +47,7 @@ impl Drop for Dir {
 /// }
 /// ```
 /// ```compile_fail
-/// use lunacy::dir::{Dir, readdir, closedir};
+/// use lunacy::{Dir, readdir, closedir};
 /// fn invalid(mut dir: Dir) {
 ///     let entry = readdir(&mut dir).unwrap().unwrap();
 ///     closedir(dir);

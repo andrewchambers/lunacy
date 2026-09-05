@@ -1,14 +1,7 @@
 #![cfg_attr(panic = "abort", no_std)]
 #![cfg_attr(panic = "abort", no_main)]
 
-use lunacy::{
-    Errno,
-    args::Args,
-    dir::{closedir, opendir, readdir},
-    errno::strerror_r,
-    fd::BorrowedFd,
-    io::write,
-};
+use lunacy::{Args, BorrowedFd, Errno, closedir, opendir, readdir, strerror_r, write};
 
 fn run(args: &Args<'_>) -> Result<(), Errno> {
     if args.len() > 2 {

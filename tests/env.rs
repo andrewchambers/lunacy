@@ -1,9 +1,6 @@
 // Harness-free: mutation runs before any threads are started. Threads are used
 // only for the final, read-only test, without sibling tests mutating the process.
-use lunacy::{
-    Errno,
-    env::{getenv, getenv_borrowed, setenv, unsetenv},
-};
+use lunacy::{Errno, getenv, getenv_borrowed, setenv, unsetenv};
 use std::{
     alloc::{GlobalAlloc, Layout, System},
     ffi::CString,

@@ -1,4 +1,4 @@
-use lunacy::args::Args;
+use lunacy::Args;
 
 #[test]
 fn arguments_preserve_c_string_bytes_and_bounds() {

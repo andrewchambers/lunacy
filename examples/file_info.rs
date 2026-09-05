@@ -1,19 +1,15 @@
 #![cfg_attr(panic = "abort", no_std)]
 #![cfg_attr(panic = "abort", no_main)]
 
-use lunacy::{
-    Errno,
-    args::Args,
-    fs::{self, Mode, OpenFlags},
-};
+use lunacy::{Args, Errno, Mode, OpenFlags, fstat, open};
 
 mod program {
     use super::*;
 
     fn run(args: Args<'_>) -> Result<usize, Errno> {
         let path = args.get(1).unwrap_or(c"README.md");
-        let file = fs::open(path, OpenFlags::rdonly(), Mode::empty())?;
-        let info = fs::fstat(file.as_fd())?;
+        let file = open(path, OpenFlags::rdonly(), Mode::empty())?;
+        let info = fstat(file.as_fd())?;
         lunacy::println!("{}: {} bytes", path.to_string_lossy(), info.st_size)
         // file closes on drop; as_fd() only borrowed it for fstat.
     }

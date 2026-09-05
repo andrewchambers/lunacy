@@ -84,7 +84,7 @@ impl BitOrAssign for PollEvents {
 /// [`Self::new`] represents an ignored entry (native fd -1).
 ///
 /// ```compile_fail
-/// use lunacy::{fd::OwnedFd, poll::{PollFd, PollEvents, poll}};
+/// use lunacy::{OwnedFd, PollFd, PollEvents, poll};
 /// fn invalid(owner: OwnedFd) {
 ///     let mut fds = [PollFd::new(Some(owner.as_fd()), PollEvents::pollin())];
 ///     drop(owner);

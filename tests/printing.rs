@@ -59,8 +59,8 @@ fn temporary_file() -> File {
     let mut template = CString::new(template.as_os_str().as_bytes())
         .unwrap()
         .into_bytes_with_nul();
-    let fd = lunacy::fs::mkstemp(&mut template).unwrap();
-    lunacy::fs::unlink(CStr::from_bytes_with_nul(&template).unwrap()).unwrap();
+    let fd = lunacy::mkstemp(&mut template).unwrap();
+    lunacy::unlink(CStr::from_bytes_with_nul(&template).unwrap()).unwrap();
     // SAFETY: into_raw_fd transfers exclusive ownership to File.
     unsafe { File::from_raw_fd(fd.into_raw_fd()) }
 }
@@ -162,7 +162,7 @@ extern "C" fn interrupt(_: libc::c_int) {
 }
 
 fn interrupted_write_is_returned_without_retrying() {
-    let (_reader, writer) = lunacy::fd::pipe().unwrap();
+    let (_reader, writer) = lunacy::pipe().unwrap();
     let fd = writer.as_raw_fd();
     // SAFETY: The descriptor is live and these fcntl commands take integer flags.
     let flags = unsafe { libc::fcntl(fd, libc::F_GETFL) };

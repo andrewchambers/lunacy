@@ -1,8 +1,4 @@
-use lunacy::{
-    Errno, fd,
-    fs::{self, FileType, Mode, OpenFlags, Whence},
-    io,
-};
+use lunacy::{Errno, FileType, Mode, OpenFlags, Whence};
 use std::{
     ffi::{CStr, CString},
     os::unix::{
@@ -46,29 +42,29 @@ fn file_creation_seek_shared_offset_truncate_and_unlink() {
     let temp = Temp::new();
     let path = temp.path("data");
     let flags = OpenFlags::rdwr() | OpenFlags::creat() | OpenFlags::excl();
-    let file = fs::open(&path, flags, private_mode()).unwrap();
+    let file = lunacy::open(&path, flags, private_mode()).unwrap();
     assert_eq!(
-        fs::open(&path, flags, private_mode()).err(),
+        lunacy::open(&path, flags, private_mode()).err(),
         Some(Errno::EEXIST)
     );
-    assert_eq!(io::write(file.as_fd(), b"abcdef"), Ok(6));
-    let duplicate = fd::dup(file.as_fd()).unwrap();
-    assert_eq!(fs::lseek(duplicate.as_fd(), -3, Whence::Cur), Ok(3));
+    assert_eq!(lunacy::write(file.as_fd(), b"abcdef"), Ok(6));
+    let duplicate = lunacy::dup(file.as_fd()).unwrap();
+    assert_eq!(lunacy::lseek(duplicate.as_fd(), -3, Whence::Cur), Ok(3));
     let mut buffer = [0; 3];
-    assert_eq!(io::read(file.as_fd(), &mut buffer), Ok(3));
+    assert_eq!(lunacy::read(file.as_fd(), &mut buffer), Ok(3));
     assert_eq!(&buffer, b"def");
-    fs::ftruncate(file.as_fd(), 2).unwrap();
-    assert_eq!(fs::lseek(file.as_fd(), 0, Whence::Cur), Ok(6));
-    assert_eq!(fs::fstat(file.as_fd()).unwrap().st_size, 2);
-    fs::ftruncate(file.as_fd(), 8).unwrap();
-    assert_eq!(fs::lseek(file.as_fd(), -2, Whence::End), Ok(6));
-    assert_eq!(io::read(file.as_fd(), &mut buffer), Ok(2));
+    lunacy::ftruncate(file.as_fd(), 2).unwrap();
+    assert_eq!(lunacy::lseek(file.as_fd(), 0, Whence::Cur), Ok(6));
+    assert_eq!(lunacy::fstat(file.as_fd()).unwrap().st_size, 2);
+    lunacy::ftruncate(file.as_fd(), 8).unwrap();
+    assert_eq!(lunacy::lseek(file.as_fd(), -2, Whence::End), Ok(6));
+    assert_eq!(lunacy::read(file.as_fd(), &mut buffer), Ok(2));
     assert_eq!(&buffer[..2], &[0, 0]);
-    fs::unlink(&path).unwrap();
-    assert_eq!(fs::stat(&path), Err(Errno::ENOENT));
-    assert_eq!(fs::fstat(file.as_fd()).unwrap().st_size, 8);
-    fd::close(file).unwrap();
-    fd::close(duplicate).unwrap();
+    lunacy::unlink(&path).unwrap();
+    assert_eq!(lunacy::stat(&path), Err(Errno::ENOENT));
+    assert_eq!(lunacy::fstat(file.as_fd()).unwrap().st_size, 8);
+    lunacy::close(file).unwrap();
+    lunacy::close(duplicate).unwrap();
 }
 
 #[test]
@@ -77,7 +73,7 @@ fn stat_fields_and_symlink_behavior_match_native_metadata() {
     let path = temp.path("data");
     std::fs::write(temp.0.join("data"), b"metadata").unwrap();
     symlink("data", temp.0.join("link")).unwrap();
-    let actual = fs::stat(&path).unwrap();
+    let actual = lunacy::stat(&path).unwrap();
     let native = std::fs::metadata(temp.0.join("data")).unwrap();
     assert_eq!(actual.st_dev, native.dev());
     assert_eq!(actual.st_ino, native.ino());
@@ -100,17 +96,20 @@ fn stat_fields_and_symlink_behavior_match_native_metadata() {
         (native.ctime(), native.ctime_nsec())
     );
     assert_eq!(actual.st_mode.file_type(), FileType::Regular);
-    assert_eq!(fs::stat(&temp.path("link")).unwrap(), actual);
+    assert_eq!(lunacy::stat(&temp.path("link")).unwrap(), actual);
     assert_eq!(
-        fs::lstat(&temp.path("link")).unwrap().st_mode.file_type(),
+        lunacy::lstat(&temp.path("link"))
+            .unwrap()
+            .st_mode
+            .file_type(),
         FileType::Symlink
     );
     assert_eq!(
-        fs::stat(&cpath(&temp.0)).unwrap().st_mode.file_type(),
+        lunacy::stat(&cpath(&temp.0)).unwrap().st_mode.file_type(),
         FileType::Directory
     );
     assert_eq!(
-        fs::open(
+        lunacy::open(
             &temp.path("link"),
             OpenFlags::rdonly() | OpenFlags::nofollow(),
             Mode::empty()
@@ -125,27 +124,27 @@ fn openat_follows_directory_descriptor_after_rename() {
     let temp = Temp::new();
     let old = temp.path("old");
     let new = temp.path("new");
-    fs::mkdir(&old, private_mode() | Mode::ixusr()).unwrap();
-    let directory = fs::open(
+    lunacy::mkdir(&old, private_mode() | Mode::ixusr()).unwrap();
+    let directory = lunacy::open(
         &old,
         OpenFlags::rdonly() | OpenFlags::directory(),
         Mode::empty(),
     )
     .unwrap();
-    fs::rename(&old, &new).unwrap();
-    let file = fs::openat(
+    lunacy::rename(&old, &new).unwrap();
+    let file = lunacy::openat(
         Some(directory.as_fd()),
         c"child",
         OpenFlags::rdwr() | OpenFlags::creat(),
         private_mode(),
     )
     .unwrap();
-    io::write(file.as_fd(), b"relative").unwrap();
+    lunacy::write(file.as_fd(), b"relative").unwrap();
     assert_eq!(
         std::fs::read(temp.0.join("new/child")).unwrap(),
         b"relative"
     );
-    let absolute = fs::openat(
+    let absolute = lunacy::openat(
         None,
         &temp.path("new/child"),
         OpenFlags::rdonly(),
@@ -153,13 +152,13 @@ fn openat_follows_directory_descriptor_after_rename() {
     )
     .unwrap();
     assert_eq!(
-        fs::fstat(absolute.as_fd()).unwrap().st_ino,
-        fs::fstat(file.as_fd()).unwrap().st_ino
+        lunacy::fstat(absolute.as_fd()).unwrap().st_ino,
+        lunacy::fstat(file.as_fd()).unwrap().st_ino
     );
-    assert_eq!(fs::rmdir(&new), Err(Errno::ENOTEMPTY));
-    fs::unlink(&temp.path("new/child")).unwrap();
-    fs::rmdir(&new).unwrap();
-    assert_eq!(fs::stat(&new), Err(Errno::ENOENT));
+    assert_eq!(lunacy::rmdir(&new), Err(Errno::ENOTEMPTY));
+    lunacy::unlink(&temp.path("new/child")).unwrap();
+    lunacy::rmdir(&new).unwrap();
+    assert_eq!(lunacy::stat(&new), Err(Errno::ENOENT));
 }
 
 #[test]
@@ -167,35 +166,41 @@ fn append_truncation_and_errors_preserve_libc_behavior() {
     let temp = Temp::new();
     let path = temp.path("append");
     std::fs::write(temp.0.join("append"), b"old").unwrap();
-    let file = fs::open(
+    let file = lunacy::open(
         &path,
         OpenFlags::wronly() | OpenFlags::append(),
         Mode::empty(),
     )
     .unwrap();
-    fs::lseek(file.as_fd(), 0, Whence::Set).unwrap();
-    assert_eq!(io::write(file.as_fd(), b"!"), Ok(1));
+    lunacy::lseek(file.as_fd(), 0, Whence::Set).unwrap();
+    assert_eq!(lunacy::write(file.as_fd(), b"!"), Ok(1));
     assert_eq!(std::fs::read(temp.0.join("append")).unwrap(), b"old!");
-    assert_eq!(fs::ftruncate(file.as_fd(), -1), Err(Errno::EINVAL));
-    assert_eq!(fs::lseek(file.as_fd(), -1, Whence::Set), Err(Errno::EINVAL));
-    let truncated = fs::open(
+    assert_eq!(lunacy::ftruncate(file.as_fd(), -1), Err(Errno::EINVAL));
+    assert_eq!(
+        lunacy::lseek(file.as_fd(), -1, Whence::Set),
+        Err(Errno::EINVAL)
+    );
+    let truncated = lunacy::open(
         &path,
         OpenFlags::wronly() | OpenFlags::trunc(),
         Mode::empty(),
     )
     .unwrap();
-    assert_eq!(fs::fstat(truncated.as_fd()).unwrap().st_size, 0);
+    assert_eq!(lunacy::fstat(truncated.as_fd()).unwrap().st_size, 0);
     assert_eq!(
-        fs::open(&temp.path("absent"), OpenFlags::rdonly(), Mode::empty()).err(),
+        lunacy::open(&temp.path("absent"), OpenFlags::rdonly(), Mode::empty()).err(),
         Some(Errno::ENOENT)
     );
-    let (read, _) = fd::pipe().unwrap();
-    assert_eq!(fs::lseek(read.as_fd(), 0, Whence::Set), Err(Errno::ESPIPE));
+    let (read, _) = lunacy::pipe().unwrap();
     assert_eq!(
-        fs::fstat(read.as_fd()).unwrap().st_mode.file_type(),
+        lunacy::lseek(read.as_fd(), 0, Whence::Set),
+        Err(Errno::ESPIPE)
+    );
+    assert_eq!(
+        lunacy::fstat(read.as_fd()).unwrap().st_mode.file_type(),
         FileType::Fifo
     );
-    assert!(!fs::isatty(read.as_fd()).unwrap());
+    assert!(!lunacy::isatty(read.as_fd()).unwrap());
 }
 
 #[test]
@@ -204,28 +209,34 @@ fn mkstemp_rewrites_template_and_returns_unique_owned_file() {
     let original = temp.path("temp-XXXXXX").into_bytes_with_nul();
     let mut first = original.clone();
     let mut second = original;
-    let file = fs::mkstemp(&mut first).unwrap();
-    let other = fs::mkstemp(&mut second).unwrap();
+    let file = lunacy::mkstemp(&mut first).unwrap();
+    let other = lunacy::mkstemp(&mut second).unwrap();
     assert_ne!(first, second);
     let name = CStr::from_bytes_with_nul(&first).unwrap();
     assert_eq!(
-        fs::fstat(file.as_fd()).unwrap().st_ino,
-        fs::stat(name).unwrap().st_ino
+        lunacy::fstat(file.as_fd()).unwrap().st_ino,
+        lunacy::stat(name).unwrap().st_ino
     );
-    assert_eq!(fs::fstat(file.as_fd()).unwrap().st_mode.to_raw() & 0o077, 0);
-    assert_eq!(io::write(file.as_fd(), b"temporary"), Ok(9));
-    fd::close(file).unwrap();
-    assert_eq!(fs::stat(name).unwrap().st_size, 9);
-    fs::unlink(name).unwrap();
-    fd::close(other).unwrap();
-    fs::unlink(CStr::from_bytes_with_nul(&second).unwrap()).unwrap();
+    assert_eq!(
+        lunacy::fstat(file.as_fd()).unwrap().st_mode.to_raw() & 0o077,
+        0
+    );
+    assert_eq!(lunacy::write(file.as_fd(), b"temporary"), Ok(9));
+    lunacy::close(file).unwrap();
+    assert_eq!(lunacy::stat(name).unwrap().st_size, 9);
+    lunacy::unlink(name).unwrap();
+    lunacy::close(other).unwrap();
+    lunacy::unlink(CStr::from_bytes_with_nul(&second).unwrap()).unwrap();
     for invalid in [
         b"no-suffix\0".to_vec(),
         b"XXXXXX".to_vec(),
         b"\0XXXXXX\0".to_vec(),
         vec![],
     ] {
-        assert_eq!(fs::mkstemp(&mut invalid.clone()).err(), Some(Errno::EINVAL));
+        assert_eq!(
+            lunacy::mkstemp(&mut invalid.clone()).err(),
+            Some(Errno::EINVAL)
+        );
     }
 }
 
@@ -235,8 +246,8 @@ fn isatty_recognizes_a_pseudoterminal() {
     let raw = unsafe { libc::posix_openpt(libc::O_RDWR | libc::O_NOCTTY) };
     assert!(raw >= 0);
     // SAFETY: Transfer exclusive ownership of the newly opened descriptor.
-    let terminal = unsafe { fd::OwnedFd::from_raw_fd(raw) };
-    assert!(fs::isatty(terminal.as_fd()).unwrap());
+    let terminal = unsafe { lunacy::OwnedFd::from_raw_fd(raw) };
+    assert!(lunacy::isatty(terminal.as_fd()).unwrap());
 }
 
 #[test]

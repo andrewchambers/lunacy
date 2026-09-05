@@ -6,11 +6,7 @@ use std::{
     time::Duration,
 };
 
-use lunacy::{
-    Errno,
-    fd::{BorrowedFd, OwnedFd, close, dup},
-    io::write,
-};
+use lunacy::{BorrowedFd, Errno, OwnedFd, close, dup, write};
 
 fn pair() -> (OwnedFd, UnixStream) {
     let (writer, reader) = UnixStream::pair().unwrap();

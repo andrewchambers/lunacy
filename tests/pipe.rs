@@ -1,8 +1,4 @@
-use lunacy::{
-    Errno,
-    fd::{close, dup, dup2, dup2_raw, pipe},
-    io::{read, write},
-};
+use lunacy::{Errno, close, dup, dup2, dup2_raw, pipe, read, write};
 
 #[test]
 fn pipe_read_returns_short_counts_and_eof_after_all_writers_close() {

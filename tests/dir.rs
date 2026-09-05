@@ -1,8 +1,4 @@
-use lunacy::{
-    Errno,
-    dir::{closedir, opendir, readdir},
-    fs,
-};
+use lunacy::{Errno, closedir, opendir, readdir};
 use std::{
     collections::BTreeSet,
     ffi::CString,
@@ -51,7 +47,7 @@ fn entries_preserve_names_and_distinguish_eof_from_stale_errno() {
     assert!(seen.contains(c"."));
     assert!(seen.contains(c".."));
     assert_eq!(
-        fs::stat(c"/lunacy-test-path-that-does-not-exist"),
+        lunacy::stat(c"/lunacy-test-path-that-does-not-exist"),
         Err(Errno::ENOENT)
     );
     assert!(readdir(&mut directory).unwrap().is_none());

@@ -32,7 +32,7 @@ fn native_error_matches_std_without_assuming_a_numeric_value() {
 }
 #[test]
 fn error_text_uses_caller_storage_and_reports_small_buffers() {
-    use lunacy::{Errno, errno::strerror_r};
+    use lunacy::{Errno, strerror_r};
     let mut buffer = [0; 256];
     let text = strerror_r(Errno::ENOENT, &mut buffer).unwrap();
     assert!(!text.to_bytes().is_empty());

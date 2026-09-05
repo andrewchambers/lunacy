@@ -12,8 +12,7 @@ use crate::sys;
 ///
 /// ```
 /// #[global_allocator]
-/// static ALLOCATOR: lunacy::allocator::LibcAllocator =
-///     lunacy::allocator::LibcAllocator;
+/// static ALLOCATOR: lunacy::LibcAllocator = lunacy::LibcAllocator;
 /// ```
 pub struct LibcAllocator;
 

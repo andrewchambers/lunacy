@@ -14,7 +14,7 @@ use core::{ffi::c_int, marker::PhantomData, ptr};
 /// Removing a descriptor does not shorten the set's Rust borrow lifetime.
 ///
 /// ```compile_fail
-/// use lunacy::{fd::OwnedFd, select::FdSet};
+/// use lunacy::{OwnedFd, FdSet};
 /// fn invalid(owner: OwnedFd) {
 ///     let mut set = FdSet::new();
 ///     set.insert(owner.as_fd()).unwrap();

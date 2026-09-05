@@ -1,12 +1,7 @@
 #![cfg_attr(panic = "abort", no_std)]
 #![cfg_attr(panic = "abort", no_main)]
 
-use lunacy::{
-    Errno,
-    env::getenv,
-    fd::{BorrowedFd, close, pipe},
-    io::{read, write},
-};
+use lunacy::{BorrowedFd, Errno, close, getenv, pipe, read, write};
 
 fn run() -> Result<(), Errno> {
     let mut buffer = [0; 256];
@@ -39,7 +34,7 @@ fn run() -> Result<(), Errno> {
     Ok(())
 }
 
-fn entry(_: lunacy::args::Args<'_>) -> i32 {
+fn entry(_: lunacy::Args<'_>) -> i32 {
     match run() {
         Ok(()) => 0,
         Err(_) => 1,
@@ -52,6 +47,6 @@ lunacy::lunacy_main!(entry);
 #[cfg(not(panic = "abort"))]
 fn main() {
     // SAFETY: This example ignores arguments; an empty vector needs no storage.
-    let args = unsafe { lunacy::args::Args::from_raw(0, core::ptr::null()) };
+    let args = unsafe { lunacy::Args::from_raw(0, core::ptr::null()) };
     std::process::exit(entry(args));
 }

@@ -1,12 +1,9 @@
 use lunacy::{
-    Errno,
-    poll::{PollEvents, PollFd, poll},
-    select::{FdSet, TimeVal, select},
-    socket::{self, AddressFamily, MsgFlags, SocketType},
+    AddressFamily, Errno, FdSet, MsgFlags, PollEvents, PollFd, SocketType, TimeVal, poll, select,
 };
 
-fn pair() -> (lunacy::fd::OwnedFd, lunacy::fd::OwnedFd) {
-    socket::socketpair(AddressFamily::Unix, SocketType::Stream, 0).unwrap()
+fn pair() -> (lunacy::OwnedFd, lunacy::OwnedFd) {
+    lunacy::socketpair(AddressFamily::Unix, SocketType::Stream, 0).unwrap()
 }
 
 #[test]
@@ -18,7 +15,7 @@ fn poll_timeout_readiness_and_ignored_entries() {
     ];
     assert_eq!(poll(&mut fds, 0), Ok(0));
     assert_eq!(fds[0].revents(), PollEvents::empty());
-    assert_eq!(socket::send(left.as_fd(), b"x", MsgFlags::empty()), Ok(1));
+    assert_eq!(lunacy::send(left.as_fd(), b"x", MsgFlags::empty()), Ok(1));
     // The descriptor is already readable, so an infinite timeout also returns.
     assert_eq!(poll(&mut fds, -1), Ok(1));
     assert!(fds[0].revents().contains(PollEvents::pollin()));
@@ -37,7 +34,7 @@ fn poll_counts_entries_not_bits_and_reports_hangup() {
         Some(right.as_fd()),
         PollEvents::pollin() | PollEvents::pollout(),
     )];
-    assert_eq!(socket::send(left.as_fd(), b"x", MsgFlags::empty()), Ok(1));
+    assert_eq!(lunacy::send(left.as_fd(), b"x", MsgFlags::empty()), Ok(1));
     assert_eq!(poll(&mut fds, 2000), Ok(1));
     assert!(
         fds[0]
@@ -65,7 +62,7 @@ fn select_updates_sets_and_counts_bits_across_sets() {
     );
     assert!(!read.contains(raw));
 
-    socket::send(left.as_fd(), b"x", MsgFlags::empty()).unwrap();
+    lunacy::send(left.as_fd(), b"x", MsgFlags::empty()).unwrap();
     read.insert(right.as_fd()).unwrap();
     let mut write = read.clone();
     let mut except = read.clone();
@@ -98,7 +95,7 @@ fn select_null_timeout_on_ready_descriptor() {
     let (left, right) = pair();
     let mut read = FdSet::new();
     read.insert(right.as_fd()).unwrap();
-    socket::send(left.as_fd(), b"x", MsgFlags::empty()).unwrap();
+    lunacy::send(left.as_fd(), b"x", MsgFlags::empty()).unwrap();
     assert_eq!(
         select(right.as_raw_fd() + 1, Some(&mut read), None, None, None),
         Ok(1)

@@ -1,7 +1,4 @@
-use lunacy::{
-    Errno,
-    time::{Timespec, nanosleep},
-};
+use lunacy::{Errno, Timespec, nanosleep};
 
 extern "C" fn alarm_handler(_: libc::c_int) {}
 

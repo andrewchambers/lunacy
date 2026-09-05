@@ -40,11 +40,11 @@ impl<'fd> BorrowedFd<'fd> {
 ///
 /// A borrow prevents closing or transferring its owner while still in use:
 /// ```compile_fail
-/// use lunacy::fd::{OwnedFd, close};
+/// use lunacy::{OwnedFd, close};
 /// fn invalid(owner: OwnedFd) {
 ///     let borrowed = owner.as_fd();
 ///     close(owner);
-///     lunacy::io::write(borrowed, b"still open?");
+///     lunacy::write(borrowed, b"still open?");
 /// }
 /// ```
 #[repr(transparent)]
@@ -126,11 +126,11 @@ pub fn dup(fd: BorrowedFd<'_>) -> Result<OwnedFd, Errno> {
 /// flag is cleared. See [`dup2_raw`] for targeting an unowned descriptor number.
 ///
 /// ```compile_fail
-/// use lunacy::fd::{OwnedFd, dup2};
+/// use lunacy::{OwnedFd, dup2};
 /// fn invalid(source: OwnedFd, mut target: OwnedFd) {
 ///     let borrowed = target.as_fd();
 ///     dup2(source.as_fd(), &mut target);
-///     lunacy::io::write(borrowed, b"old target");
+///     lunacy::write(borrowed, b"old target");
 /// }
 /// ```
 pub fn dup2(source: BorrowedFd<'_>, target: &mut OwnedFd) -> Result<(), Errno> {

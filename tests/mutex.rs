@@ -1,4 +1,7 @@
-use lunacy::{Errno, pthread, sync::Mutex};
+use lunacy::{
+    Errno,
+    pthread::{self, Mutex},
+};
 use std::{
     cell::Cell,
     sync::{
